@@ -9,7 +9,7 @@ void main() {
      ivec2 storePos = ivec2(gl_GlobalInvocationID.xy);
      double localCoef = length(vec2(ivec2(gl_LocalInvocationID.xy)-8)/8.0);
      vec4 tt = imageLoad(inTex, storePos);
-     dvec4 aa = dvec4(0.4, 0.2, 0.3, 0.4);
+     dvec4 aa = dvec4(0.4-0.1, 0.2, 0.3, 0.4);
      double globalCoef = sin(roll*roll*exp(roll)); //((gl_WorkGroupID.x+gl_WorkGroupID.y)*0.1 + roll)*0.5);
      imageStore(destTex, storePos, vec4(1.0-globalCoef*localCoef, 0.0, 0.0, 0.0));
 }

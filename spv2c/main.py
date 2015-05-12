@@ -2,6 +2,8 @@ import os
 import sys
 sys.path.append("..")
 
+import json
+
 import array
 import spirv
 import struct
@@ -39,7 +41,7 @@ def printVector(vv):
     return ",".join(s)
 
 class Spv2C:
-    def __init__(self, instructions, info):
+    def __init__(self, instructions, info, glsl450lib):
         self.instructions = instructions
         self.info = info
         self.typeTable = {} 
@@ -48,6 +50,7 @@ class Spv2C:
         self.nameTable = {}
         self.decorateTable = {}
         self.tmpCount = 0
+        self.glsl450lib = glsl450lib
 
     def genTemp(self):
         s = "tmp%08d" % self.tmpCount
@@ -185,7 +188,7 @@ class Spv2C:
                 s += "\n"
             elif insn.name == 'OpExtInst':
                 dst = self.getVarOrGen(insn.result_id)
-                s += "TODO: " + insn.name
+                s += "TODO: " + str(insn.args)
                 s += "\n"
             elif insn.name == 'OpImagePointer':
                 dst = self.getVarOrGen(insn.result_id)
@@ -221,7 +224,15 @@ def main():
     instructions, info = spirv.decode_spirv(array.array('I', open(sys.argv[1], "rb").read()))
     print("info", info)
 
-    s = Spv2C(instructions, info)
+    # Get GLSL450 lib code
+    libs = json.loads(open("../glsl450lib.json").read())
+
+    glsl450lib = {}
+    for name in libs['GLSL450']:
+        n = libs['GLSL450'][name]
+        glsl450lib[n] = name
+
+    s = Spv2C(instructions, info, glsl450lib)
     code = s.Emit()
     print(code)
 
